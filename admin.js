@@ -13,6 +13,18 @@ const memberFields = document.querySelector("#member-fields");
 const defaultEmailSubject = document.querySelector("#meeting-form").elements.emailSubject.value;
 const defaultEmailBody = document.querySelector("#meeting-form").elements.emailBody.value;
 
+function fillTimeSelect(select, max, step, placeholder) {
+  select.innerHTML = `<option value="">${placeholder}</option>`;
+  for (let value = 0; value <= max; value += step) {
+    const padded = String(value).padStart(2, "0");
+    select.add(new Option(padded, padded));
+  }
+}
+
+const meetingForm = document.querySelector("#meeting-form");
+["eventHour", "deadlineHour"].forEach((name) => fillTimeSelect(meetingForm.elements[name], 23, 1, "Ώρα"));
+["eventMinute", "deadlineMinute"].forEach((name) => fillTimeSelect(meetingForm.elements[name], 55, 5, "Λεπτά"));
+
 async function api(path, options = {}) {
   let result;
   if (path === "/api/admin/dashboard") {
@@ -150,20 +162,32 @@ document.querySelector("#new-meeting").addEventListener("click", () => {
 document.querySelector("#close-dialog").addEventListener("click", () => dialog.close());
 document.querySelector("#refresh").addEventListener("click", loadDashboard);
 
-function localDateTime(value) {
+function localDateTimeParts(value) {
   const date = new Date(value);
   const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  return local.toISOString().slice(0, 16);
+  const [day, time] = local.toISOString().slice(0, 16).split("T");
+  const [hour, minute] = time.split(":");
+  return { day, hour, minute };
+}
+
+function setDateTimeFields(form, prefix, value) {
+  const parts = localDateTimeParts(value);
+  const minuteSelect = form.elements[`${prefix}Minute`];
+  if (![...minuteSelect.options].some((option) => option.value === parts.minute)) {
+    minuteSelect.add(new Option(parts.minute, parts.minute));
+  }
+  form.elements[`${prefix}Date`].value = parts.day;
+  form.elements[`${prefix}Hour`].value = parts.hour;
+  minuteSelect.value = parts.minute;
 }
 
 document.querySelector("#edit-meeting").addEventListener("click", () => {
   if (!currentMeeting) return;
   editingMeetingId = currentMeeting.id;
-  const meetingForm = document.querySelector("#meeting-form");
   meetingForm.elements.title.value = currentMeeting.title;
   meetingForm.elements.meetingNumber.value = currentMeeting.meetingNumber || "";
-  meetingForm.elements.eventAt.value = localDateTime(currentMeeting.eventAt);
-  meetingForm.elements.deadline.value = localDateTime(currentMeeting.deadline);
+  setDateTimeFields(meetingForm, "event", currentMeeting.eventAt);
+  setDateTimeFields(meetingForm, "deadline", currentMeeting.deadline);
   meetingForm.elements.location.value = currentMeeting.location;
   meetingForm.elements.mealPrice.value = currentMeeting.mealPrice;
   meetingForm.elements.senderEmail.value = currentMeeting.senderEmail || "";
@@ -192,6 +216,9 @@ document.querySelector("#delete-meeting").addEventListener("click", async () => 
 document.querySelector("#meeting-form").addEventListener("submit", async (event) => {
   event.preventDefault();
   const values = Object.fromEntries(new FormData(event.currentTarget));
+  values.eventAt = `${values.eventDate}T${values.eventHour}:${values.eventMinute}`;
+  values.deadline = `${values.deadlineDate}T${values.deadlineHour}:${values.deadlineMinute}`;
+  ["eventDate", "eventHour", "eventMinute", "deadlineDate", "deadlineHour", "deadlineMinute"].forEach((key) => delete values[key]);
   values.members = [...memberFields.querySelectorAll(".member-field-row")].map((row) => ({
     id: row.dataset.memberId ? Number(row.dataset.memberId) : null,
     title: row.querySelector(".member-title-input").value,

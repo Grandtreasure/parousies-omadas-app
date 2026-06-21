@@ -50,7 +50,10 @@
         <form id="meeting-form" class="dialog-form">
           <div class="dialog-head"><div><p id="dialog-eyebrow" class="eyebrow dark">ΝΕΑ ΣΥΝΕΔΡΙΑ</p><h2>Στοιχεία και μέλη</h2></div><button type="button" class="icon-button" id="close-dialog">×</button></div>
           <div class="form-row"><label class="field"><span>Τίτλος συνεδρίας / σώματος</span><input name="title" value="Συμβούλιο Ηράκλειτος" placeholder="π.χ. ΣΣ Στοά Παναγιώτης Βλαχάκος" required /></label><label class="field"><span>Αριθμός</span><input name="meetingNumber" placeholder="π.χ. 5 ή 69" /></label></div>
-          <div class="form-row"><label class="field"><span>Ημερομηνία και ώρα</span><input name="eventAt" type="datetime-local" required /></label><label class="field"><span>Προθεσμία</span><input name="deadline" type="datetime-local" required /></label></div>
+          <div class="form-row">
+            <label class="field"><span>Ημερομηνία και ώρα</span><div class="date-time-inputs"><input name="eventDate" type="date" aria-label="Ημερομηνία συνεδρίας" required /><select name="eventHour" aria-label="Ώρα συνεδρίας" required></select><span class="time-separator">:</span><select name="eventMinute" aria-label="Λεπτά συνεδρίας" required></select></div></label>
+            <label class="field"><span>Προθεσμία</span><div class="date-time-inputs"><input name="deadlineDate" type="date" aria-label="Ημερομηνία προθεσμίας" required /><select name="deadlineHour" aria-label="Ώρα προθεσμίας" required></select><span class="time-separator">:</span><select name="deadlineMinute" aria-label="Λεπτά προθεσμίας" required></select></div></label>
+          </div>
           <div class="form-row"><label class="field"><span>Τοποθεσία</span><input name="location" required /></label><label class="field"><span>Κόστος φαγητού (€)</span><input name="mealPrice" type="number" min="0" step="0.01" value="15" required /></label></div>
           <section class="form-section">
             <h3>Κείμενο email</h3>

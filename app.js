@@ -5,6 +5,17 @@ const success = document.querySelector("#success");
 const token = location.pathname.match(/^\/r\/([A-Za-z0-9_-]+)$/)?.[1]
   || new URLSearchParams(location.search).get("token");
 
+function fillTimeSelect(select, max, step, placeholder) {
+  select.innerHTML = `<option value="">${placeholder}</option>`;
+  for (let value = 0; value <= max; value += step) {
+    const padded = String(value).padStart(2, "0");
+    select.add(new Option(padded, padded));
+  }
+}
+
+fillTimeSelect(form.elements.arrivalHour, 23, 1, "Ώρα");
+fillTimeSelect(form.elements.arrivalMinute, 55, 5, "Λεπτά");
+
 function formatDate(value) {
   return new Intl.DateTimeFormat("el-GR", { weekday: "long", day: "numeric", month: "long" }).format(new Date(value));
 }
@@ -36,7 +47,12 @@ async function loadInvitation() {
       setChoice("attendance", data.response.attendance);
       setChoice("arrival", data.response.arrival);
       setChoice("meal", data.response.meal ? "yes" : "no");
-      form.elements.arrivalTime.value = data.response.arrivalTime || "";
+      const [arrivalHour = "", arrivalMinute = ""] = (data.response.arrivalTime || "").split(":");
+      if (arrivalMinute && ![...form.elements.arrivalMinute.options].some((option) => option.value === arrivalMinute)) {
+        form.elements.arrivalMinute.add(new Option(arrivalMinute, arrivalMinute));
+      }
+      form.elements.arrivalHour.value = arrivalHour;
+      form.elements.arrivalMinute.value = arrivalMinute;
       form.elements.note.value = data.response.note || "";
     }
     document.querySelector("#loading").classList.add("hidden");
@@ -60,7 +76,8 @@ form.addEventListener("change", (event) => {
   if (event.target.name === "arrival") {
     const isLate = event.target.value === "late";
     arrivalTimeWrap.classList.toggle("hidden", !isLate);
-    form.elements.arrivalTime.required = isLate;
+    form.elements.arrivalHour.required = isLate;
+    form.elements.arrivalMinute.required = isLate;
   }
 });
 
@@ -69,6 +86,7 @@ form.addEventListener("submit", async (event) => {
   const button = document.querySelector("#submit-button");
   const error = document.querySelector("#form-error");
   const data = Object.fromEntries(new FormData(form));
+  const arrivalTime = data.arrivalHour && data.arrivalMinute ? `${data.arrivalHour}:${data.arrivalMinute}` : null;
   button.disabled = true;
   button.textContent = "Αποθήκευση…";
   error.classList.add("hidden");
@@ -77,7 +95,7 @@ form.addEventListener("submit", async (event) => {
       p_token: token,
       p_attendance: data.attendance,
       p_arrival: data.attendance === "yes" ? data.arrival : null,
-      p_arrival_time: data.attendance === "yes" && data.arrival === "late" ? data.arrivalTime : null,
+      p_arrival_time: data.attendance === "yes" && data.arrival === "late" ? arrivalTime : null,
       p_meal: data.meal === "yes",
       p_note: data.note || ""
     });
