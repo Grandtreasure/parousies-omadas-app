@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="el">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#173a34" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Παρουσίες" />
+    <title>Παρουσίες Ομάδας</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./index.html" aria-label="Αρχική">
+        <span class="brand-mark">Π</span>
+        <span>Παρουσίες</span>
+      </a>
+    </header>
+
+    <main>
+      <section id="loading" class="state-page">
+        <div class="card state-card"><p>Φόρτωση πρόσκλησης…</p></div>
+      </section>
+
+      <section id="invalid" class="state-page hidden">
+        <div class="card state-card">
+          <span class="state-icon">!</span>
+          <h1>Το link δεν είναι έγκυρο</h1>
+          <p>Άνοιξε το προσωπικό link που έλαβες στο email ή επικοινώνησε με τον υπεύθυνο της ομάδας.</p>
+        </div>
+      </section>
+
+      <section id="response" class="hidden">
+        <div class="hero">
+          <p class="eyebrow">ΕΠΟΜΕΝΗ ΣΥΝΕΔΡΙΑ</p>
+          <h1 id="meeting-title"></h1>
+          <div class="event-meta">
+            <span><b id="meeting-date"></b></span>
+            <span id="meeting-time"></span>
+            <span id="meeting-location"></span>
+          </div>
+        </div>
+
+        <form id="attendance-form" class="card form-card">
+          <div class="form-heading">
+            <div>
+              <p class="eyebrow dark">Η ΑΠΑΝΤΗΣΗ ΣΟΥ</p>
+              <h2>Καλησπέρα, <span id="member-name"></span></h2>
+            </div>
+            <span id="deadline" class="deadline"></span>
+          </div>
+
+          <fieldset>
+            <legend>Θα παρευρεθείς;</legend>
+            <div class="choice-grid two">
+              <label class="choice">
+                <input type="radio" name="attendance" value="yes" required />
+                <span class="choice-icon">✓</span>
+                <span><b>Ναι, θα έρθω</b><small>Θα είμαι στη συνεδρία</small></span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="attendance" value="no" />
+                <span class="choice-icon">×</span>
+                <span><b>Δεν θα έρθω</b><small>Δεν θα παρευρεθώ</small></span>
+              </label>
+            </div>
+          </fieldset>
+
+          <div id="arrival-fields" class="conditional hidden">
+            <fieldset>
+              <legend>Θα είσαι στην ώρα σου;</legend>
+              <div class="choice-grid two compact">
+                <label class="choice"><input type="radio" name="arrival" value="ontime" /><span><b>Στην ώρα μου</b></span></label>
+                <label class="choice"><input type="radio" name="arrival" value="late" /><span><b>Θα αργήσω</b></span></label>
+              </div>
+            </fieldset>
+            <label id="arrival-time-wrap" class="field hidden">
+              <span>Περίπου τι ώρα θα έρθεις;</span>
+              <input type="time" name="arrivalTime" />
+            </label>
+          </div>
+
+          <fieldset>
+            <legend>Θα μείνεις για φαγητό;</legend>
+            <p class="helper">Το κόστος του φαγητού είναι <span id="meal-price"></span>€ ανά άτομο.</p>
+            <div class="choice-grid two compact">
+              <label class="choice"><input type="radio" name="meal" value="yes" required /><span><b>Ναι, θα φάω</b></span></label>
+              <label class="choice"><input type="radio" name="meal" value="no" /><span><b>Όχι, ευχαριστώ</b></span></label>
+            </div>
+          </fieldset>
+
+          <label class="field">
+            <span>Σημείωση <small>(προαιρετικά)</small></span>
+            <textarea name="note" rows="3" maxlength="500" placeholder="Αλλεργίες, διατροφικές προτιμήσεις ή κάτι άλλο..."></textarea>
+          </label>
+
+          <p id="form-error" class="error hidden"></p>
+          <button id="submit-button" class="primary" type="submit">Υποβολή απάντησης</button>
+          <p class="privacy">Μπορείς να αλλάξεις την απάντησή σου μέχρι τη λήξη της προθεσμίας.</p>
+        </form>
+
+        <div id="success" class="card success hidden" role="status">
+          <span class="success-icon">✓</span>
+          <h2>Η απάντησή σου καταχωρίστηκε</h2>
+          <p>Ευχαριστούμε. Μπορείς να επιστρέψεις από το ίδιο link για αλλαγές.</p>
+          <button id="edit-response" class="secondary">Αλλαγή απάντησης</button>
+        </div>
+      </section>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./config.js"></script>
+    <script src="./supabase-client.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>

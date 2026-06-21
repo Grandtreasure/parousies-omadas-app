@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="el">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#173a34" />
+    <title>Διαχείριση Παρουσιών</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar"><a class="brand" href="./admin.html"><span class="brand-mark">Π</span><span>Διαχείριση παρουσιών</span></a></header>
+    <main>
+      <section id="login" class="state-page">
+        <form id="login-form" class="card state-card narrow">
+          <p class="eyebrow dark">ΔΙΑΧΕΙΡΙΣΗ</p>
+          <h1>Σύνδεση</h1>
+          <p>Θα λάβεις ασφαλή σύνδεσμο στο εγκεκριμένο email διαχειριστή.</p>
+          <label class="field"><span>Email διαχειριστή</span><input name="email" type="email" autocomplete="email" required /></label>
+          <p id="login-error" class="error hidden"></p>
+          <button class="primary">Αποστολή συνδέσμου σύνδεσης</button>
+        </form>
+      </section>
+
+      <section id="admin-app" class="dashboard hidden">
+        <div class="dashboard-head">
+          <div><p class="eyebrow dark">ΠΙΝΑΚΑΣ ΔΙΑΧΕΙΡΙΣΗΣ</p><h1 id="admin-title">Παρουσίες</h1><p id="admin-meta"></p></div>
+          <div class="button-row"><button id="refresh" class="secondary">Ανανέωση</button><button id="edit-meeting" class="secondary hidden">Επεξεργασία</button><button id="delete-meeting" class="danger hidden">Διαγραφή</button><button id="new-meeting" class="primary inline">Νέα συνεδρία</button></div>
+        </div>
+
+        <div id="empty-state" class="card state-card hidden"><h2>Δεν υπάρχει συνεδρία</h2><p>Δημιούργησε την πρώτη συνεδρία και πρόσθεσε τα μέλη της ομάδας.</p></div>
+
+        <div id="dashboard-content" class="hidden">
+          <div class="stats">
+            <article><span class="stat-dot green"></span><b id="stat-yes">0</b><small>Θα έρθουν</small></article>
+            <article><span class="stat-dot red"></span><b id="stat-no">0</b><small>Δεν θα έρθουν</small></article>
+            <article><span class="stat-dot amber"></span><b id="stat-pending">0</b><small>Δεν απάντησαν</small></article>
+            <article><span class="stat-dot blue"></span><b id="stat-meals">0</b><small>Μερίδες φαγητού</small></article>
+          </div>
+          <div class="card roster-card">
+            <div class="roster-head"><div><h2>Μέλη και προσωπικά links</h2><p id="response-count"></p></div><label class="search"><span>⌕</span><input id="search" type="search" placeholder="Αναζήτηση" /></label></div>
+            <div class="filter-row">
+              <button class="filter active" data-filter="all">Όλοι</button><button class="filter" data-filter="yes">Έρχονται</button><button class="filter" data-filter="late">Θα αργήσουν</button><button class="filter" data-filter="meal">Φαγητό</button><button class="filter" data-filter="pending">Εκκρεμεί</button>
+            </div>
+            <div id="roster" class="roster"></div>
+          </div>
+        </div>
+      </section>
+
+      <dialog id="meeting-dialog">
+        <form id="meeting-form" class="dialog-form">
+          <div class="dialog-head"><div><p id="dialog-eyebrow" class="eyebrow dark">ΝΕΑ ΣΥΝΕΔΡΙΑ</p><h2>Στοιχεία και μέλη</h2></div><button type="button" class="icon-button" id="close-dialog">×</button></div>
+          <div class="form-row"><label class="field"><span>Τίτλος συνεδρίας / σώματος</span><input name="title" value="Συμβούλιο Ηράκλειτος" placeholder="π.χ. ΣΣ Στοά Παναγιώτης Βλαχάκος" required /></label><label class="field"><span>Αριθμός</span><input name="meetingNumber" placeholder="π.χ. 5 ή 69" /></label></div>
+          <div class="form-row"><label class="field"><span>Ημερομηνία και ώρα</span><input name="eventAt" type="datetime-local" required /></label><label class="field"><span>Προθεσμία</span><input name="deadline" type="datetime-local" required /></label></div>
+          <div class="form-row"><label class="field"><span>Τοποθεσία</span><input name="location" required /></label><label class="field"><span>Κόστος φαγητού (€)</span><input name="mealPrice" type="number" min="0" step="0.01" value="15" required /></label></div>
+          <section class="form-section">
+            <h3>Κείμενο email</h3>
+            <div class="form-row"><label class="field"><span>Email αποστολέα</span><input name="senderEmail" type="email" placeholder="sender@email.gr" /><small>Επιλέγεις αυτόν τον λογαριασμό στο πεδίο «Από».</small></label><label class="field"><span>Email ειδοποιήσεων</span><input name="notificationEmail" type="email" placeholder="notifications@email.gr" /><small>Μπορεί να είναι διαφορετικό για κάθε Στοά.</small></label></div>
+            <label class="field"><span>Θέμα email</span><input name="emailSubject" value="Πρόσκληση για {τίτλος}" required /></label>
+            <label class="field"><span>Κείμενο</span><textarea name="emailBody" rows="9" required>{προσφώνηση} {όνομα},
+
+Παρακαλώ να μας γνωστοποιήσετε εάν θα παρευρεθείτε στη συνεδρία «{τίτλος}», η οποία θα πραγματοποιηθεί στις {ημερομηνία}, ώρα {ώρα}, στον χώρο {τοποθεσία}, καθώς και εάν θα παραμείνετε για το γεύμα.
+
+Για την καταχώριση της απάντησής σας, παρακαλώ χρησιμοποιήστε τον ακόλουθο προσωπικό σύνδεσμο:
+{link}
+
+Με εκτίμηση</textarea><small>Μεταβλητές: {προσφώνηση}, {όνομα}, {τίτλος}, {αριθμός}, {ημερομηνία}, {ώρα}, {τοποθεσία}, {link}, {αποστολέας}</small></label>
+          </section>
+          <div class="field">
+            <div class="member-fields-head"><span>Μέλη</span><button id="add-member" type="button" class="secondary">+ Προσθήκη μέλους</button></div>
+            <div class="saved-contact-picker"><select id="saved-contact" aria-label="Αποθηκευμένες επαφές"><option value="">Επιλογή από αποθηκευμένες επαφές</option></select><button id="use-contact" type="button" class="secondary">Προσθήκη επιλεγμένου</button></div>
+            <div class="member-columns"><span>Προσφώνηση</span><span>Ονοματεπώνυμο</span><span>Email</span><span></span></div>
+            <div id="member-fields" class="member-fields"></div>
+          </div>
+          <p id="meeting-error" class="error hidden"></p>
+          <button id="save-meeting" class="primary">Δημιουργία συνεδρίας</button>
+        </form>
+      </dialog>
+    </main>
+    <div id="toast" class="toast" role="status"></div>
+    <template id="member-row-template">
+      <div class="member-field-row">
+        <select class="member-title-input" aria-label="Προσφώνηση">
+          <option value="">Χωρίς προσφώνηση</option>
+          <option value="Εταίρε">Εταίρε</option>
+          <option value="Αδελφέ">Αδελφέ</option>
+          <option value="Άξιε Ιππότα">Άξιε Ιππότα</option>
+        </select>
+        <input class="member-name-input" aria-label="Ονοματεπώνυμο" placeholder="π.χ. Γιώργος Αντωνίου" required />
+        <input class="member-email-input" aria-label="Email" type="email" placeholder="name@example.com" required />
+        <button type="button" class="icon-button remove-member" aria-label="Διαγραφή μέλους">×</button>
+      </div>
+    </template>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="./config.js"></script>
+    <script src="./supabase-client.js"></script>
+    <script src="./admin.js"></script>
+  </body>
+</html>

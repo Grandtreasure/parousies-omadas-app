@@ -1,0 +1,11 @@
+{
+  "name": "Παρουσίες Ομάδας",
+  "short_name": "Παρουσίες",
+  "description": "Δήλωση παρουσίας και φαγητού για τις συναντήσεις της ομάδας.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f2ec",
+  "theme_color": "#173a34",
+  "lang": "el",
+  "orientation": "portrait-primary"
+}
