@@ -220,7 +220,7 @@ document.querySelector("#meeting-form").addEventListener("submit", async (event)
   values.deadline = `${values.deadlineDate}T${values.deadlineHour}:${values.deadlineMinute}`;
   ["eventDate", "eventHour", "eventMinute", "deadlineDate", "deadlineHour", "deadlineMinute"].forEach((key) => delete values[key]);
   values.members = [...memberFields.querySelectorAll(".member-field-row")].map((row) => ({
-    id: row.dataset.memberId ? Number(row.dataset.memberId) : null,
+    id: row.dataset.memberId || null,
     title: row.querySelector(".member-title-input").value,
     name: row.querySelector(".member-name-input").value.trim(),
     email: row.querySelector(".member-email-input").value.trim()
