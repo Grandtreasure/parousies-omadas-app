@@ -36,6 +36,18 @@
             <article><span class="stat-dot amber"></span><b id="stat-pending">0</b><small>Δεν απάντησαν</small></article>
             <article><span class="stat-dot blue"></span><b id="stat-meals">0</b><small>Μερίδες φαγητού</small></article>
           </div>
+          <div class="card invite-assistant">
+            <div>
+              <p class="eyebrow dark">ΕΠΟΜΕΝΗ ΚΙΝΗΣΗ</p>
+              <h2>Αποστολή προσκλήσεων</h2>
+              <p id="invite-progress">Άνοιξε έτοιμα email με προσωπικό link για κάθε μέλος ή αντέγραψε όλες τις προσκλήσεις μαζί.</p>
+            </div>
+            <div class="quick-actions">
+              <button id="open-next-email" class="primary inline" type="button">Άνοιγμα επόμενου email</button>
+              <button id="copy-all-invites" class="secondary" type="button">Αντιγραφή όλων των προσκλήσεων</button>
+              <button id="copy-all-links" class="secondary" type="button">Αντιγραφή όλων των links</button>
+            </div>
+          </div>
           <div class="card roster-card">
             <div class="roster-head"><div><h2>Μέλη και προσωπικά links</h2><p id="response-count"></p></div><label class="search"><span>⌕</span><input id="search" type="search" placeholder="Αναζήτηση" /></label></div>
             <div class="filter-row">
@@ -49,14 +61,22 @@
       <dialog id="meeting-dialog">
         <form id="meeting-form" class="dialog-form">
           <div class="dialog-head"><div><p id="dialog-eyebrow" class="eyebrow dark">ΝΕΑ ΣΥΝΕΔΡΙΑ</p><h2>Στοιχεία και μέλη</h2></div><button type="button" class="icon-button" id="close-dialog">×</button></div>
-          <div class="form-row"><label class="field"><span>Τίτλος συνεδρίας / σώματος</span><input name="title" value="Συμβούλιο Ηράκλειτος" placeholder="π.χ. ΣΣ Στοά Παναγιώτης Βλαχάκος" required /></label><label class="field"><span>Αριθμός</span><input name="meetingNumber" placeholder="π.χ. 5 ή 69" /></label></div>
-          <div class="form-row">
-            <label class="field"><span>Ημερομηνία και ώρα</span><div class="date-time-inputs"><input name="eventDate" type="date" aria-label="Ημερομηνία συνεδρίας" required /><select name="eventHour" aria-label="Ώρα συνεδρίας" required></select><span class="time-separator">:</span><select name="eventMinute" aria-label="Λεπτά συνεδρίας" required></select></div></label>
-            <label class="field"><span>Προθεσμία</span><div class="date-time-inputs"><input name="deadlineDate" type="date" aria-label="Ημερομηνία προθεσμίας" required /><select name="deadlineHour" aria-label="Ώρα προθεσμίας" required></select><span class="time-separator">:</span><select name="deadlineMinute" aria-label="Λεπτά προθεσμίας" required></select></div></label>
-          </div>
-          <div class="form-row"><label class="field"><span>Τοποθεσία</span><input name="location" required /></label><label class="field"><span>Κόστος φαγητού (€)</span><input name="mealPrice" type="number" min="0" step="0.01" value="15" required /></label></div>
-          <section class="form-section">
-            <h3>Κείμενο email</h3>
+          <ol class="wizard-steps" aria-label="Βήματα δημιουργίας">
+            <li><span>1</span>Συνεδρία</li>
+            <li><span>2</span>Email</li>
+            <li><span>3</span>Μέλη</li>
+          </ol>
+          <section class="form-section step-section">
+            <h3><span class="step-badge">1</span> Στοιχεία συνεδρίας</h3>
+            <div class="form-row"><label class="field"><span>Τίτλος συνεδρίας / σώματος</span><input name="title" value="Συμβούλιο Ηράκλειτος" placeholder="π.χ. ΣΣ Στοά Παναγιώτης Βλαχάκος" required /></label><label class="field"><span>Αριθμός</span><input name="meetingNumber" placeholder="π.χ. 5 ή 69" /></label></div>
+            <div class="form-row">
+              <label class="field"><span>Ημερομηνία και ώρα</span><div class="date-time-inputs"><input name="eventDate" type="date" aria-label="Ημερομηνία συνεδρίας" required /><select name="eventHour" aria-label="Ώρα συνεδρίας" required></select><span class="time-separator">:</span><select name="eventMinute" aria-label="Λεπτά συνεδρίας" required></select></div></label>
+              <label class="field"><span>Προθεσμία</span><div class="date-time-inputs"><input name="deadlineDate" type="date" aria-label="Ημερομηνία προθεσμίας" required /><select name="deadlineHour" aria-label="Ώρα προθεσμίας" required></select><span class="time-separator">:</span><select name="deadlineMinute" aria-label="Λεπτά προθεσμίας" required></select></div></label>
+            </div>
+            <div class="form-row"><label class="field"><span>Τοποθεσία</span><input name="location" required /></label><label class="field"><span>Κόστος φαγητού (€)</span><input name="mealPrice" type="number" min="0" step="0.01" value="15" required /></label></div>
+          </section>
+          <section class="form-section step-section">
+            <h3><span class="step-badge">2</span> Κείμενο email</h3>
             <div class="form-row"><label class="field"><span>Email αποστολέα</span><input name="senderEmail" type="email" placeholder="sender@email.gr" /><small>Επιλέγεις αυτόν τον λογαριασμό στο πεδίο «Από».</small></label><label class="field"><span>Email ειδοποιήσεων</span><input name="notificationEmail" type="email" placeholder="notifications@email.gr" /><small>Μπορεί να είναι διαφορετικό για κάθε Στοά.</small></label></div>
             <label class="field"><span>Θέμα email</span><input name="emailSubject" value="Πρόσκληση για {τίτλος}" required /></label>
             <label class="field"><span>Κείμενο</span><textarea name="emailBody" rows="9" required>{προσφώνηση} {όνομα},
@@ -68,14 +88,15 @@
 
 Με εκτίμηση</textarea><small>Μεταβλητές: {προσφώνηση}, {όνομα}, {τίτλος}, {αριθμός}, {ημερομηνία}, {ώρα}, {τοποθεσία}, {link}, {αποστολέας}</small></label>
           </section>
-          <div class="field">
-            <div class="member-fields-head"><span>Μέλη</span><button id="add-member" type="button" class="secondary">+ Προσθήκη μέλους</button></div>
+          <section class="form-section step-section">
+            <h3><span class="step-badge">3</span> Μέλη</h3>
+            <div class="member-fields-head"><span>Ποιοι θα λάβουν πρόσκληση</span><button id="add-member" type="button" class="secondary">+ Προσθήκη μέλους</button></div>
             <div class="saved-contact-picker"><select id="saved-contact" aria-label="Αποθηκευμένες επαφές"><option value="">Επιλογή από αποθηκευμένες επαφές</option></select><button id="use-contact" type="button" class="secondary">Προσθήκη επιλεγμένου</button></div>
             <div class="member-columns"><span>Προσφώνηση</span><span>Ονοματεπώνυμο</span><span>Email</span><span></span></div>
             <div id="member-fields" class="member-fields"></div>
-          </div>
+          </section>
           <p id="meeting-error" class="error hidden"></p>
-          <button id="save-meeting" class="primary">Δημιουργία συνεδρίας</button>
+          <button id="save-meeting" class="primary">Αποθήκευση και μετά αποστολή προσκλήσεων</button>
         </form>
       </dialog>
     </main>

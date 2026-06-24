@@ -77,6 +77,81 @@ function emailText(template, member) {
   return Object.entries(values).reduce((text, [key, value]) => text.replaceAll(key, value), template).replace(/ +([,\n])/g, "$1");
 }
 
+function invitationMessage(member) {
+  return {
+    subject: emailText(currentMeeting.emailSubject, member),
+    body: emailText(currentMeeting.emailBody, member)
+  };
+}
+
+function openedInviteKey() {
+  return currentMeeting ? `parousies-opened-invites-${currentMeeting.id}` : "";
+}
+
+function openedInviteTokens() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(openedInviteKey()) || "[]"));
+  } catch {
+    return new Set();
+  }
+}
+
+function rememberInviteOpened(member) {
+  const opened = openedInviteTokens();
+  opened.add(member.token);
+  localStorage.setItem(openedInviteKey(), JSON.stringify([...opened]));
+}
+
+async function copyText(value, successMessage) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(value);
+    showToast(successMessage);
+    return;
+  }
+  const input = document.createElement("textarea");
+  input.value = value;
+  input.style.position = "fixed";
+  input.style.opacity = "0";
+  document.body.append(input);
+  input.select();
+  const copied = document.execCommand("copy");
+  input.remove();
+  if (!copied) throw new Error("copy");
+  showToast(successMessage);
+}
+
+function allInviteText() {
+  return members.map((member, index) => {
+    const message = invitationMessage(member);
+    return `${index + 1}. ${member.name} <${member.email}>
+Θέμα: ${message.subject}
+
+${message.body}`;
+  }).join("\n\n---\n\n");
+}
+
+function allLinksText() {
+  return members.map((member) => `${member.name} <${member.email}>: ${member.url}`).join("\n");
+}
+
+function renderInviteAssistant() {
+  const progress = document.querySelector("#invite-progress");
+  const button = document.querySelector("#open-next-email");
+  if (!progress || !button || !currentMeeting) return;
+  const opened = openedInviteTokens();
+  const openedCount = members.filter((member) => opened.has(member.token)).length;
+  progress.textContent = `${openedCount} από ${members.length} email έχουν ανοιχτεί από αυτόν τον υπολογιστή. Κάθε email έχει προσωπικό link για το σωστό μέλος.`;
+  button.textContent = openedCount >= members.length ? "Άνοιγμα πρώτου email ξανά" : "Άνοιγμα επόμενου email";
+}
+
+function openInvitationEmail(member) {
+  const message = invitationMessage(member);
+  const mailto = `mailto:${encodeURIComponent(member.email)}?subject=${encodeURIComponent(message.subject)}&body=${encodeURIComponent(message.body)}`;
+  rememberInviteOpened(member);
+  renderInviteAssistant();
+  window.location.href = mailto;
+}
+
 function renderRoster() {
   const query = search.value.trim().toLocaleLowerCase("el");
   const filtered = members.filter((member) => {
@@ -87,8 +162,9 @@ function renderRoster() {
   roster.innerHTML = filtered.map((member) => {
     const label = member.attendance === "yes" ? "Θα έρθει" : member.attendance === "no" ? "Δεν θα έρθει" : "Εκκρεμεί";
     const arrival = member.arrival === "late" ? `Θα αργήσει${member.arrivalTime ? ` · ${member.arrivalTime}` : ""}` : member.arrival === "ontime" ? "Στην ώρα του/της" : "—";
-    const subject = encodeURIComponent(emailText(currentMeeting.emailSubject, member));
-    const body = encodeURIComponent(emailText(currentMeeting.emailBody, member));
+    const message = invitationMessage(member);
+    const subject = encodeURIComponent(message.subject);
+    const body = encodeURIComponent(message.body);
     return `<article class="person admin-person">
       <div class="person-name"><span class="avatar">${initials(member.name)}</span><span>${member.name}<small>${member.email}</small></span></div>
       <span class="status ${member.attendance}">${label}</span>
@@ -127,6 +203,7 @@ async function loadDashboard() {
     document.querySelector("#stat-meals").textContent = data.stats.meals;
     document.querySelector("#response-count").textContent = `${data.stats.yes + data.stats.no} από ${data.stats.total} μέλη απάντησαν`;
     members = data.members.map((member) => ({ ...member, url: window.publicAppUrl(member.token) }));
+    renderInviteAssistant();
     renderRoster();
   } catch (error) {
     if (error.message === "unauthorized") {
@@ -155,7 +232,7 @@ document.querySelector("#new-meeting").addEventListener("click", () => {
   meetingForm.elements.emailSubject.value = defaultEmailSubject;
   meetingForm.elements.emailBody.value = defaultEmailBody;
   document.querySelector("#dialog-eyebrow").textContent = "ΝΕΑ ΣΥΝΕΔΡΙΑ";
-  document.querySelector("#save-meeting").textContent = "Δημιουργία συνεδρίας";
+  document.querySelector("#save-meeting").textContent = "Αποθήκευση και μετά αποστολή προσκλήσεων";
   resetMemberFields();
   dialog.showModal();
 });
@@ -262,6 +339,31 @@ roster.addEventListener("click", async (event) => {
   } catch {
     if (navigator.share) await navigator.share({ title: "Πρόσκληση", url: value });
     else prompt("Αντέγραψε το προσωπικό link:", value);
+  }
+});
+
+document.querySelector("#open-next-email").addEventListener("click", () => {
+  if (!members.length) return showToast("Δεν υπάρχουν μέλη για πρόσκληση");
+  const opened = openedInviteTokens();
+  const nextMember = members.find((member) => !opened.has(member.token)) || members[0];
+  openInvitationEmail(nextMember);
+});
+
+document.querySelector("#copy-all-invites").addEventListener("click", async () => {
+  if (!members.length) return showToast("Δεν υπάρχουν προσκλήσεις");
+  try {
+    await copyText(allInviteText(), "Αντιγράφηκαν όλες οι προσκλήσεις");
+  } catch {
+    prompt("Αντέγραψε τις προσκλήσεις:", allInviteText());
+  }
+});
+
+document.querySelector("#copy-all-links").addEventListener("click", async () => {
+  if (!members.length) return showToast("Δεν υπάρχουν links");
+  try {
+    await copyText(allLinksText(), "Αντιγράφηκαν όλα τα links");
+  } catch {
+    prompt("Αντέγραψε τα links:", allLinksText());
   }
 });
 
